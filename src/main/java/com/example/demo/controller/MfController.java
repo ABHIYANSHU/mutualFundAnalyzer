@@ -14,6 +14,11 @@ public class MfController {
         this.mfService = mfService;
     }
 
+    @GetMapping("/")
+    public String getIndex() {
+        return "index";
+    }
+
     @GetMapping("/mf")
     public String getMfDetails(Model model) {
         List<MfDetails> allDetails = mfService.getAllSchemeDetails();
