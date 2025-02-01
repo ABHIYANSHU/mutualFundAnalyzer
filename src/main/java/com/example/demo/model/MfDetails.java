@@ -1,4 +1,4 @@
-// src/main/java/com/example/demo/model/MfDetails.java
+package com.example.demo.model;
 import lombok.Data;
 import java.util.List;
 
