@@ -1,4 +1,4 @@
-// src/main/java/com/example/demo/service/MfService.java
+package com.example.demo.service;
 import com.example.demo.model.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -16,14 +16,12 @@ public class MfService {
     }
 
     public List<MfDetails> getAllSchemeDetails() {
-        // Get all schemes
         MutualFund[] funds = restTemplate.getForObject(LIST_API, MutualFund[].class);
         List<MfDetails> allDetails = new ArrayList<>();
         
         if (funds != null) {
             for (MutualFund fund : funds) {
                 try {
-                    // Get details for each scheme
                     MfDetails details = restTemplate.getForObject(
                         DETAILS_API + fund.getSchemeCode(), 
                         MfDetails.class
@@ -32,8 +30,7 @@ public class MfService {
                         allDetails.add(details);
                     }
                 } catch (Exception e) {
-                    // Handle individual API call errors
-                    System.err.println("Error fetching details for scheme " + fund.getSchemeCode());
+                    System.err.println("Error fetching scheme " + fund.getSchemeCode());
                 }
             }
         }
