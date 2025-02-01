@@ -1,4 +1,4 @@
-// src/main/java/com/example/demo/controller/MfController.java
+package com.example.demo.controller;
 import com.example.demo.model.MfDetails;
 import com.example.demo.service.MfService;
 import org.springframework.stereotype.Controller;
