@@ -1,4 +1,4 @@
-// src/main/java/com/example/demo/model/MutualFund.java
+package com.example.demo.model;
 import lombok.Data;
 
 @Data
