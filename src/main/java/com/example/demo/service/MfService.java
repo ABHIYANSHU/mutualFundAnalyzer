@@ -15,9 +15,9 @@ public class MfService {
     private static final String LIST_API = "https://api.mfapi.in/mf";
     private static final String DETAILS_API = "https://api.mfapi.in/mf/";
 
-    // Create a thread pool matching the number of CPU cores
+    // Double the thread pool size
     private final ExecutorService executor = Executors.newFixedThreadPool(
-        Runtime.getRuntime().availableProcessors()
+        2 * Runtime.getRuntime().availableProcessors()
     );
 
     public MfService(RestTemplate restTemplate) {
@@ -25,16 +25,13 @@ public class MfService {
     }
 
     public List<MfDetails> getAllSchemeDetailsParallel() {
-        // Fetch all schemes
         MutualFund[] funds = restTemplate.getForObject(LIST_API, MutualFund[].class);
         if (funds == null) return List.of();
 
-        // Create a list of CompletableFuture for parallel processing
         List<CompletableFuture<MfDetails>> futures = List.of(funds).stream()
             .map(fund -> fetchSchemeDetailsAsync(fund.getSchemeCode()))
             .collect(Collectors.toList());
 
-        // Wait for all futures to complete and collect results
         return futures.stream()
             .map(CompletableFuture::join)
             .filter(details -> details != null && details.getMeta() != null)
@@ -44,14 +41,27 @@ public class MfService {
     private CompletableFuture<MfDetails> fetchSchemeDetailsAsync(String schemeCode) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                return restTemplate.getForObject(
+                MfDetails details = restTemplate.getForObject(
                     DETAILS_API + schemeCode,
                     MfDetails.class
                 );
+                if (details != null) {
+                    processDetails(details); // CPU-intensive work
+                }
+                return details;
             } catch (Exception e) {
                 System.err.println("Error fetching scheme " + schemeCode + ": " + e.getMessage());
                 return null;
             }
         }, executor);
+    }
+
+    private void processDetails(MfDetails details) {
+        // Example: Calculate average NAV
+        double averageNav = details.getData().stream()
+            .mapToDouble(data -> Double.parseDouble(data.getNav()))
+            .average()
+            .orElse(0.0);
+        details.getMeta().setAverageNav(averageNav);
     }
 }
