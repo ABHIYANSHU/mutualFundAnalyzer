@@ -17,7 +17,7 @@ public class MfService {
 
     // Double the thread pool size
     private final ExecutorService executor = Executors.newFixedThreadPool(
-        2 * Runtime.getRuntime().availableProcessors()
+        4 * Runtime.getRuntime().availableProcessors()
     );
 
     public MfService(RestTemplate restTemplate) {
@@ -29,6 +29,7 @@ public class MfService {
         if (funds == null) return List.of();
 
         List<CompletableFuture<MfDetails>> futures = List.of(funds).stream()
+            .limit(100)
             .map(fund -> fetchSchemeDetailsAsync(fund.getSchemeCode()))
             .collect(Collectors.toList());
 
@@ -62,6 +63,20 @@ public class MfService {
             .mapToDouble(data -> Double.parseDouble(data.getNav()))
             .average()
             .orElse(0.0);
+        
+        int prime = (int) IntStream.rangeClosed(2, details.getMeta().getSchemeCode())
+                .parallel() // Uses multiple CPU cores
+                .filter(MfService::isPrime)
+                .count();
+        
         details.getMeta().setAverageNav(averageNav);
+    }
+
+    public static boolean isPrime(int num) {
+        if (num < 2) return false;
+        for (int i = 2; i * i <= num; i++) {
+            if (num % i == 0) return false;
+        }
+        return true;
     }
 }
