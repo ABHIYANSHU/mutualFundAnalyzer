@@ -4,6 +4,8 @@ import com.example.demo.model.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import java.util.List;
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
 import java.util.stream.IntStream;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -20,6 +22,9 @@ public class MfService {
     private final ExecutorService executor = Executors.newFixedThreadPool(
         4 * Runtime.getRuntime().availableProcessors()
     );
+
+    // Check CPU Usage
+    private final OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
 
     public MfService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -59,18 +64,34 @@ public class MfService {
     }
 
     private void processDetails(MfDetails details) {
+        double cpuBefore = osBean.getSystemLoadAverage();
+        System.out.println("CPU Load Before: " + cpuBefore);
+        
         // Example: Calculate average NAV
         double averageNav = details.getData().stream()
             .mapToDouble(data -> Double.parseDouble(data.getNav()))
             .average()
             .orElse(0.0);
         
-        int prime = (int) IntStream.rangeClosed(2, 100000)
+        CompletableFuture<Integer> future1 = CompletableFuture.supplyAsync(() -> countPrimes(2, 10000));
+        CompletableFuture<Integer> future2 = CompletableFuture.supplyAsync(() -> countPrimes(10001, 20000));
+
+        int primes1 = future1.get();
+        int primes2 = future2.get();
+        
+        details.getMeta().setAverageNav(averageNav);
+
+        // Get CPU load after execution
+        double cpuAfter = osBean.getSystemLoadAverage();
+        System.out.println("CPU Load After: " + cpuAfter);
+    }
+
+    // Prime number check function
+    public static int countPrimes(int start, int end) {
+        return (int) IntStream.rangeClosed(start, end)
                 .parallel() // Uses multiple CPU cores
                 .filter(MfService::isPrime)
                 .count();
-        
-        details.getMeta().setAverageNav(averageNav);
     }
 
     public static boolean isPrime(int num) {
