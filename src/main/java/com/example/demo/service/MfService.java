@@ -65,7 +65,7 @@ public class MfService {
             .average()
             .orElse(0.0);
         
-        int prime = (int) IntStream.rangeClosed(2, details.getMeta().getSchemeCode())
+        int prime = (int) IntStream.rangeClosed(2, 10000)
                 .parallel() // Uses multiple CPU cores
                 .filter(MfService::isPrime)
                 .count();
