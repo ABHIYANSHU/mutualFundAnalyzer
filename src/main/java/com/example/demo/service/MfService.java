@@ -30,7 +30,7 @@ public class MfService {
         if (funds == null) return List.of();
 
         List<CompletableFuture<MfDetails>> futures = List.of(funds).stream()
-            .limit(100)
+            .limit(250)
             .map(fund -> fetchSchemeDetailsAsync(fund.getSchemeCode()))
             .collect(Collectors.toList());
 
@@ -65,7 +65,7 @@ public class MfService {
             .average()
             .orElse(0.0);
         
-        int prime = (int) IntStream.rangeClosed(2, 10000)
+        int prime = (int) IntStream.rangeClosed(2, 100000)
                 .parallel() // Uses multiple CPU cores
                 .filter(MfService::isPrime)
                 .count();
