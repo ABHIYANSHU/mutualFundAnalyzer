@@ -35,7 +35,7 @@ public class MfService {
         if (funds == null) return List.of();
 
         List<CompletableFuture<MfDetails>> futures = List.of(funds).stream()
-            .limit(250)
+            .limit(100)
             .map(fund -> fetchSchemeDetailsAsync(fund.getSchemeCode()))
             .collect(Collectors.toList());
 
@@ -66,7 +66,7 @@ public class MfService {
     private void processDetails(MfDetails details) {
         try {
             double cpuBefore = osBean.getSystemLoadAverage();
-            System.out.println("CPU Load Before: " + cpuBefore);
+            System.out.println("CPU Load Before: " + (cpuBefore * 100));
         
             // Example: Calculate average NAV
             double averageNav = details.getData().stream()
@@ -74,8 +74,8 @@ public class MfService {
                 .average()
                 .orElse(0.0);
         
-            CompletableFuture<Integer> future1 = CompletableFuture.supplyAsync(() -> countPrimes(2, 10000));
-            CompletableFuture<Integer> future2 = CompletableFuture.supplyAsync(() -> countPrimes(10001, 20000));
+            CompletableFuture<Integer> future1 = CompletableFuture.supplyAsync(() -> countPrimes(2, 1000000));
+            CompletableFuture<Integer> future2 = CompletableFuture.supplyAsync(() -> countPrimes(1000001, 2000000));
 
             int primes1 = future1.get();
             int primes2 = future2.get();
@@ -86,7 +86,7 @@ public class MfService {
 
             // Get CPU load after execution
             double cpuAfter = osBean.getSystemLoadAverage();
-            System.out.println("CPU Load After: " + cpuAfter);
+            System.out.println("CPU Load After: " + (cpuAfter * 100));
         } catch (Exception e) {
                 System.err.println("Error fetching details ");
         }
