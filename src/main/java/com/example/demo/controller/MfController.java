@@ -21,7 +21,7 @@ public class MfController {
 
     @GetMapping("/mf")
     public String getMfDetails(Model model) {
-        List<MfDetails> allDetails = mfService.getAllSchemeDetails();
+        List<MfDetails> allDetails = mfService.getAllSchemeDetailsParallel();
         model.addAttribute("allDetails", allDetails);
         return "mf-details";
     }
