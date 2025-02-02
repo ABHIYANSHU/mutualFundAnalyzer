@@ -64,26 +64,32 @@ public class MfService {
     }
 
     private void processDetails(MfDetails details) {
-        double cpuBefore = osBean.getSystemLoadAverage();
-        System.out.println("CPU Load Before: " + cpuBefore);
+        try {
+            double cpuBefore = osBean.getSystemLoadAverage();
+            System.out.println("CPU Load Before: " + cpuBefore);
         
-        // Example: Calculate average NAV
-        double averageNav = details.getData().stream()
-            .mapToDouble(data -> Double.parseDouble(data.getNav()))
-            .average()
-            .orElse(0.0);
+            // Example: Calculate average NAV
+            double averageNav = details.getData().stream()
+                .mapToDouble(data -> Double.parseDouble(data.getNav()))
+                .average()
+                .orElse(0.0);
         
-        CompletableFuture<Integer> future1 = CompletableFuture.supplyAsync(() -> countPrimes(2, 10000));
-        CompletableFuture<Integer> future2 = CompletableFuture.supplyAsync(() -> countPrimes(10001, 20000));
+            CompletableFuture<Integer> future1 = CompletableFuture.supplyAsync(() -> countPrimes(2, 10000));
+            CompletableFuture<Integer> future2 = CompletableFuture.supplyAsync(() -> countPrimes(10001, 20000));
 
-        int primes1 = future1.get();
-        int primes2 = future2.get();
-        
-        details.getMeta().setAverageNav(averageNav);
+            int primes1 = future1.get();
+            int primes2 = future2.get();
 
-        // Get CPU load after execution
-        double cpuAfter = osBean.getSystemLoadAverage();
-        System.out.println("CPU Load After: " + cpuAfter);
+            System.out.println("Prime Sum: " + (primes1 + primes2));
+            
+            details.getMeta().setAverageNav(averageNav);
+
+            // Get CPU load after execution
+            double cpuAfter = osBean.getSystemLoadAverage();
+            System.out.println("CPU Load After: " + cpuAfter);
+        } catch (Exception e) {
+                System.err.println("Error fetching details ");
+        }
     }
 
     // Prime number check function
