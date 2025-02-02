@@ -14,6 +14,7 @@ public class MfDetails {
         private String scheme_category;
         private String scheme_code;
         private String scheme_name;
+        private double averageNav;
     }
     
     @Data
